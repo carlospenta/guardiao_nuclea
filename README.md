@@ -99,20 +99,43 @@ Ficam salvos na pasta `output/`:
 
 ### Requisitos
 - Python 3.9+
-- pandas, scikit-learn, matplotlib, seaborn
+- pandas, scikit-learn, matplotlib, seaborn, fastapi, uvicorn, streamlit, requests, Pillow
 
 ### Instalação
 ```bash
-pip install pandas scikit-learn matplotlib seaborn
+pip install pandas scikit-learn matplotlib seaborn fastapi uvicorn streamlit requests Pillow
 ```
 
-### Execução
+### Execução (aplicação completa)
 ```bash
 # bota os CSVs na pasta data/ e roda:
 python main.py
 ```
 
-Resultados saem no terminal e graficos vao pra `output/`.
+Isso sobe tudo de uma vez:
+- API FastAPI em http://localhost:8000 (docs em http://localhost:8000/docs)
+- Dashboard Streamlit em http://localhost:8501
+
+Ctrl+C pra parar.
+
+### Versão console (sem servidor)
+```bash
+python versao_console.py
+```
+
+Roda o pipeline inteiro no terminal e salva graficos em `output/`.
+
+### Endpoints da API
+| Rota | O que faz |
+|------|----------|
+| `GET /` | Health check |
+| `GET /dados` | Info dos datasets |
+| `GET /eda` | Roda analise exploratoria |
+| `GET /features` | Feature engineering |
+| `GET /treinar` | Retorna metricas do modelo salvo (ou treina se nao existir). `?forcar=true` pra retreinar |
+| `GET /pipeline` | Roda tudo de uma vez |
+| `GET /graficos` | Lista graficos gerados |
+| `GET /grafico/{nome}` | Retorna um grafico PNG |
 
 ---
 
@@ -120,19 +143,19 @@ Resultados saem no terminal e graficos vao pra `output/`.
 
 ```
 guardiao_nuclea/
-├── main.py                 # pipeline principal (EDA + modelo)
+├── main.py                 # ponto de entrada (sobe API + Streamlit)
+├── versao_console.py       # pipeline completo no terminal
+├── pipeline.py             # funcoes do pipeline (reusavel)
+├── api.py                  # API FastAPI
+├── app_streamlit.py        # dashboard Streamlit
+├── modelo_treinado.pkl        # modelo salvo (carrega automatico)
 ├── README.md
 ├── data/
 │   ├── base_boletos_fiap.csv
 │   └── base_auxiliar_fiap.csv
 └── output/                 # graficos gerados
     ├── 01_tipos_baixa.png
-    ├── 02_dist_valor_nominal.png
-    ├── 03_top_ufs.png
-    ├── 04_correlacao.png
-    ├── 05_curva_roc.png
-    ├── 06_matriz_confusao.png
-    ├── 07_feature_importance.png
+    ├── ...
     └── 08_dist_score_risco.png
 ```
 
@@ -153,8 +176,8 @@ guardiao_nuclea/
 
 - [x] Sprint 1 — Ideação e contextualização
 - [x] Sprint 2 — Arquitetura e protótipos
-- [x] Sprint 3 — MVP com EDA e modelo preditivo *(atual)*
-- [ ] Sprint 4 — Solução final, dashboard e video pitch
+- [x] Sprint 3 — MVP com EDA, modelo preditivo, API FastAPI e dashboard Streamlit *(atual)*
+- [ ] Sprint 4 — Solução final e video pitch
 
 ---
 
