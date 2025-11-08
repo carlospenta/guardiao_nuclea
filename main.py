@@ -2,7 +2,8 @@
 Guardiao Preditivo de Risco - Ponto de entrada principal
 Challenge FIAP/Nuclea 2025 - Equipe DataMinds
 
-Sobe a API FastAPI e o dashboard Streamlit de uma vez
+Sobe a API FastAPI e o dashboard Streamlit de uma vez (local)
+No Streamlit Community Cloud, roda apenas o dashboard.
 """
 
 import subprocess
@@ -12,6 +13,11 @@ import os
 import signal
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+
+def rodando_no_cloud():
+    """Detecta se esta rodando no Streamlit Community Cloud"""
+    return os.environ.get("STREAMLIT_SHARING_MODE") or os.path.exists("/mount/src")
 
 
 def iniciar():
@@ -64,5 +70,10 @@ def iniciar():
         print("[*] Finalizado.")
 
 
-if __name__ == "__main__":
+if rodando_no_cloud():
+    # No Streamlit Cloud, roda o app_streamlit diretamente
+    # O Cloud ja executa este arquivo com "streamlit run main.py"
+    # entao basta importar e executar o conteudo do app_streamlit
+    exec(open(os.path.join(BASE_DIR, "app_streamlit.py")).read())
+elif __name__ == "__main__":
     iniciar()
