@@ -11,6 +11,51 @@ from PIL import Image
 
 API_URL = "http://localhost:8000"
 
+
+def _no_cloud():
+    return os.environ.get("STREAMLIT_SHARING_MODE") or os.path.exists("/mount/src")
+
+
+def _chamar_direto(endpoint):
+    """Executa a logica da API diretamente, sem HTTP"""
+    from pipeline import (
+        carregar_dados, eda, feature_engineering,
+        treinar_modelos, rodar_pipeline_completo, _cache,
+    )
+    try:
+        if endpoint == "dados":
+            boletos, auxiliar = carregar_dados()
+            return {
+                "boletos": {"linhas": boletos.shape[0], "colunas": boletos.shape[1]},
+                "auxiliar": {"linhas": auxiliar.shape[0], "colunas": auxiliar.shape[1]},
+                "colunas_boletos": list(boletos.columns),
+                "colunas_auxiliar": list(auxiliar.columns),
+            }, None
+        elif endpoint == "eda":
+            boletos, auxiliar = carregar_dados()
+            resultado = eda(boletos, auxiliar)
+            resultado.pop("boletos_describe", None)
+            return resultado, None
+        elif endpoint == "features":
+            boletos, auxiliar = carregar_dados()
+            _, info = feature_engineering(boletos, auxiliar)
+            return info, None
+        elif endpoint == "treinar":
+            if "metricas_salvas" in _cache:
+                return _cache["metricas_salvas"], None
+            boletos, auxiliar = carregar_dados()
+            feature_engineering(boletos, auxiliar)
+            resultado = treinar_modelos()
+            return resultado, None
+        elif endpoint == "pipeline":
+            resultado = rodar_pipeline_completo()
+            resultado["eda"].pop("boletos_describe", None)
+            return resultado, None
+        else:
+            return None, f"Endpoint desconhecido: {endpoint}"
+    except Exception as e:
+        return None, str(e)
+
 st.set_page_config(
     page_title="Guardiao Preditivo de Risco",
     page_icon="🛡️",
@@ -28,6 +73,8 @@ OUTPUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "output")
 
 def chamar_api(endpoint):
     """chama um endpoint da api e retorna o json"""
+    if _no_cloud():
+        return _chamar_direto(endpoint)
     try:
         resp = requests.get(f"{API_URL}/{endpoint}", timeout=120)
         resp.raise_for_status()
