@@ -37,14 +37,6 @@ BOLETOS_PATH = os.path.join(DATA_DIR, "base_boletos_fiap.csv")
 AUXILIAR_PATH = os.path.join(DATA_DIR, "base_auxiliar_fiap.csv")
 MODELO_PATH = os.path.join(BASE_DIR, "modelo_treinado.pkl")
 
-if not os.path.exists(BOLETOS_PATH):
-    BOLETOS_PATH = os.path.expanduser(
-        "~/Downloads/Massa_Dados_Challgenge_Nuclea_v1(1)/base_boletos_fiap.csv"
-    )
-    AUXILIAR_PATH = os.path.expanduser(
-        "~/Downloads/Massa_Dados_Challgenge_Nuclea_v1(1)/base_auxiliar_fiap.csv"
-    )
-
 TIPOS_INADIMPLENCIA = [
     "5 - Baixa integral por solicitacao do cedente",
     "7 - Baixa integral por decurso de prazo",
