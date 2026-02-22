@@ -1,5 +1,5 @@
 """
-Dashboard Streamlit - Guardiao Preditivo de Risco
+Dashboard Streamlit - Guardiao Nuclea
 tela pra rodar o pipeline, ver graficos e metricas
 """
 
@@ -57,12 +57,12 @@ def _chamar_direto(endpoint):
         return None, str(e)
 
 st.set_page_config(
-    page_title="Guardiao Preditivo de Risco",
+    page_title="Guardiao Nuclea",
     page_icon="🛡️",
     layout="wide",
 )
 
-st.title("Guardiao Preditivo de Risco")
+st.title("Guardiao Nuclea")
 st.caption("Challenge FIAP/Nuclea 2025 - Equipe DataMinds")
 
 # sidebar com as acoes
@@ -229,5 +229,5 @@ with tab_pipeline:
 
 # footer
 st.sidebar.divider()
-st.sidebar.caption("Guardiao Preditivo de Risco v0.3")
+st.sidebar.caption("Guardiao Nuclea v0.3")
 st.sidebar.caption("Sprint 3 - Challenge FIAP/Nuclea 2025")

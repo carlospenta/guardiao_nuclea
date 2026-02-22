@@ -1,5 +1,5 @@
 """
-API FastAPI do Guardiao Preditivo de Risco
+API FastAPI do Guardiao Nuclea
 endpoints pra rodar cada etapa do pipeline
 """
 
@@ -19,7 +19,7 @@ from pipeline import (
 )
 
 app = FastAPI(
-    title="Guardiao Preditivo de Risco - API",
+    title="Guardiao Nuclea - API",
     description="API do modelo de inadimplencia pra FIDCs - Challenge FIAP/Nuclea 2025",
     version="0.3.0",
 )
@@ -30,7 +30,7 @@ app.mount("/output", StaticFiles(directory=OUTPUT_DIR), name="output")
 
 @app.get("/")
 def root():
-    return {"msg": "Guardiao Preditivo de Risco - API rodando", "version": "0.3.0"}
+    return {"msg": "Guardiao Nuclea - API rodando", "version": "0.3.0"}
 
 
 @app.get("/dados")

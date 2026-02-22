@@ -1,4 +1,4 @@
-# Guardião Preditivo de Risco — Núclea FIDC
+# Guardião Nuclea — Núclea FIDC
 
 **Enterprise Challenge FIAP 2025 — Núclea**
 Turma 1TSCOR | Equipe DataMinds
@@ -9,7 +9,7 @@ Modelo preditivo de inadimplencia para recebiveis de FIDCs. A ideia é transform
 
 ## Sobre o Projeto
 
-FIDCs tem uma taxa media de inadimplencia de uns 9%, o que da mais ou menos R$ 6 bi em creditos atrasados. O Guardião usa dados internos da Nuclea (historico de boletos, scores, liquidez) junto com features derivadas pra tentar prever inadimplencia antes da cessão dos creditos.
+FIDCs tem uma taxa media de inadimplencia de uns 9%, o que da mais ou menos R$ 6 bi em creditos atrasados. O Guardião Nuclea usa dados internos da Nuclea (historico de boletos, scores, liquidez) junto com features derivadas pra tentar prever inadimplencia antes da cessão dos creditos.
 
 ### Objetivos
 - Diminuir a inadimplencia media dos FIDCs (de ~9% pra algo perto de 6%)

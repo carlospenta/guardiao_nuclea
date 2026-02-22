@@ -1,5 +1,5 @@
 """
-Guardiao Preditivo de Risco - MVP Sprint 3
+Guardiao Nuclea - MVP Sprint 3
 Challenge FIAP/Nuclea 2025 - Equipe DataMinds
 
 Script principal do modelo de inadimplencia pra FIDCs
@@ -48,7 +48,7 @@ if not os.path.exists(BOLETOS_PATH):
 
 # ---- CARGA DOS DADOS ----
 print("=" * 70)
-print("GUARDIÃO PREDITIVO DE RISCO — MVP Sprint 3")
+print("GUARDIÃO NUCLEA — MVP Sprint 3")
 print("=" * 70)
 
 print("\n[1/6] Carregando dados...")

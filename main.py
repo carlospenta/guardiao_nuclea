@@ -1,5 +1,5 @@
 """
-Guardiao Preditivo de Risco - Ponto de entrada principal
+Guardiao Nuclea - Ponto de entrada principal
 Challenge FIAP/Nuclea 2025 - Equipe DataMinds
 
 Sobe a API FastAPI e o dashboard Streamlit de uma vez (local)
@@ -26,7 +26,7 @@ def iniciar():
     try:
         # sobe a api primeiro
         print("=" * 60)
-        print("GUARDIAO PREDITIVO DE RISCO")
+        print("GUARDIAO NUCLEA")
         print("=" * 60)
         print()
         print("[*] Subindo API FastAPI na porta 8000...")
