@@ -2,3 +2,6 @@ __pycache__/
 *.pyc
 .idea/
 .output/
+*.db
+*.db-wal
+*.db-shm

@@ -167,7 +167,6 @@ guardiao_nuclea/
 |------|-----|
 | Carlos Almeida | 568444 |
 | Larissa Mota | 567514 |
-| Fernanda Silva | 567661 |
 | Eduardo Casagrande | 567323 |
 
 ---

@@ -93,12 +93,27 @@ carregar_modelo_salvo()
 
 
 def carregar_dados():
-    """carrega os csvs e retorna boletos e auxiliar"""
+    """carrega os dados e retorna boletos e auxiliar.
+    PROD=True -> SQLite, PROD=False -> CSV (fallback MVP)"""
     if "boletos" in _cache and "auxiliar" in _cache:
         return _cache["boletos"], _cache["auxiliar"]
 
-    boletos = pd.read_csv(BOLETOS_PATH, parse_dates=["dt_emissao", "dt_vencimento", "dt_pagamento"])
-    auxiliar = pd.read_csv(AUXILIAR_PATH)
+    from database import PROD, inicializar_banco, carregar_dados_sqlite
+
+    # sempre tenta inicializar o banco (popula se vazio)
+    try:
+        inicializar_banco()
+    except Exception as e:
+        print(f"[!] Aviso ao inicializar SQLite: {e}")
+
+    if PROD:
+        print("[*] Carregando dados do SQLite (PROD=True)")
+        boletos, auxiliar = carregar_dados_sqlite()
+    else:
+        print("[*] Carregando dados do CSV (PROD=False, fallback MVP)")
+        boletos = pd.read_csv(BOLETOS_PATH, parse_dates=["dt_emissao", "dt_vencimento", "dt_pagamento"])
+        auxiliar = pd.read_csv(AUXILIAR_PATH)
+
     _cache["boletos"] = boletos
     _cache["auxiliar"] = auxiliar
     return boletos, auxiliar
