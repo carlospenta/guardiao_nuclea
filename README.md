@@ -39,6 +39,20 @@ FIDCs tem uma taxa media de inadimplencia de uns 9%, o que da mais ou menos R$ 6
                                                                   └──────────────┘
 ```
 
+### Banco de Dados
+
+O projeto usa **SQLite** como camada de persistencia:
+- Na primeira execução, o banco é populado automaticamente a partir dos CSVs
+- Flag `PROD` em `database.py` controla a fonte de dados:
+  - `PROD = False` (default/MVP): lê direto dos CSVs
+  - `PROD = True`: lê do SQLite
+
+### Deploy no Streamlit Community Cloud
+
+A aplicação roda no **Streamlit Community Cloud** sem precisar de servidor FastAPI separado. No Cloud, as funções do pipeline são chamadas diretamente (sem HTTP), mantendo o mesmo comportamento da versão local.
+
+🔗 **App online:** [guardiao-nuclea.streamlit.app](https://guardiao-nuclea.streamlit.app/)
+
 ---
 
 ## Dados
@@ -99,16 +113,15 @@ Ficam salvos na pasta `output/`:
 
 ### Requisitos
 - Python 3.9+
-- pandas, scikit-learn, matplotlib, seaborn, fastapi, uvicorn, streamlit, requests, Pillow
+- Dependencias listadas em `requirements.txt`
 
 ### Instalação
 ```bash
-pip install pandas scikit-learn matplotlib seaborn fastapi uvicorn streamlit requests Pillow
+pip install -r requirements.txt
 ```
 
-### Execução (aplicação completa)
+### Execução (aplicação completa — local)
 ```bash
-# bota os CSVs na pasta data/ e roda:
 python main.py
 ```
 
@@ -118,6 +131,9 @@ Isso sobe tudo de uma vez:
 
 Ctrl+C pra parar.
 
+### Streamlit Community Cloud
+O deploy é feito apontando o Cloud para `main.py`. A aplicação detecta automaticamente o ambiente Cloud e roda o dashboard sem subir a API separada.
+
 ### Versão console (sem servidor)
 ```bash
 python versao_console.py
@@ -125,7 +141,7 @@ python versao_console.py
 
 Roda o pipeline inteiro no terminal e salva graficos em `output/`.
 
-### Endpoints da API
+### Endpoints da API (local)
 | Rota | O que faz |
 |------|----------|
 | `GET /` | Health check |
@@ -143,16 +159,19 @@ Roda o pipeline inteiro no terminal e salva graficos em `output/`.
 
 ```
 guardiao_nuclea/
-├── main.py                 # ponto de entrada (sobe API + Streamlit)
+├── main.py                 # ponto de entrada (sobe API + Streamlit local / Cloud)
 ├── versao_console.py       # pipeline completo no terminal
 ├── pipeline.py             # funcoes do pipeline (reusavel)
 ├── api.py                  # API FastAPI
 ├── app_streamlit.py        # dashboard Streamlit
-├── modelo_treinado.pkl        # modelo salvo (carrega automatico)
+├── database.py             # modulo SQLite (carga e persistencia)
+├── modelo_treinado.pkl     # modelo salvo (carrega automatico)
+├── requirements.txt        # dependencias Python
 ├── README.md
 ├── data/
 │   ├── base_boletos_fiap.csv
-│   └── base_auxiliar_fiap.csv
+│   ├── base_auxiliar_fiap.csv
+│   └── guardiao_nuclea.db  # banco SQLite (gerado automaticamente)
 └── output/                 # graficos gerados
     ├── 01_tipos_baixa.png
     ├── ...
@@ -175,7 +194,7 @@ guardiao_nuclea/
 
 - [x] Sprint 1 — Ideação e contextualização
 - [x] Sprint 2 — Arquitetura e protótipos
-- [x] Sprint 3 — MVP com EDA, modelo preditivo, API FastAPI e dashboard Streamlit *(atual)*
+- [x] Sprint 3 — MVP com EDA, modelo preditivo, API FastAPI, dashboard Streamlit, SQLite e deploy Cloud *(atual)*
 - [ ] Sprint 4 — Solução final e video pitch
 
 ---
