@@ -20,7 +20,7 @@ from pipeline import (
 
 app = FastAPI(
     title="Guardiao Nuclea - API",
-    description="API do modelo de inadimplencia pra FIDCs - Challenge FIAP/Nuclea 2025",
+    description="API do modelo de inadimplencia pra FIDCs - Challenge FIAP/Nuclea 2026",
     version="0.3.0",
 )
 
