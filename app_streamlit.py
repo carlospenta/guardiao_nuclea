@@ -110,23 +110,36 @@ st.sidebar.caption("Inteligência Preditiva de Risco")
 st.sidebar.divider()
 
 # --- Navegacao ---
-st.sidebar.subheader("🧭 Navegação")
-pagina = st.sidebar.radio(
-    "Selecione a visão",
-    [
-        "📊 Visão Executiva",
-        "🏦 Dashboard Risco Carteira",
-        "👤 Detalhe do Cedente",
-        "🚨 Gestão de Alertas",
-        "📁 Dados",
-        "🔍 Análise Exploratória",
-        "⚙️ Feature Engineering",
-        "🤖 Modelo",
-        "🚀 Pipeline Completo",
-        "🏗️ Arquitetura",
-    ],
-    label_visibility="collapsed",
-)
+# Inicializa pagina no session_state
+if "pagina" not in st.session_state:
+    st.session_state["pagina"] = "📊 Visão Executiva"
+
+
+def _nav_btn(label):
+    """Botão de navegação estilizado na sidebar"""
+    is_active = st.session_state["pagina"] == label
+    btn_type = "primary" if is_active else "secondary"
+    if st.sidebar.button(label, use_container_width=True, type=btn_type, key=f"nav_{label}"):
+        st.session_state["pagina"] = label
+        st.rerun()
+
+
+st.sidebar.markdown("#### 📈 Executivo & Negócios")
+_nav_btn("📊 Visão Executiva")
+_nav_btn("🏦 Dashboard Risco Carteira")
+_nav_btn("👤 Detalhe do Cedente")
+_nav_btn("🚨 Gestão de Alertas")
+
+st.sidebar.markdown("")
+st.sidebar.markdown("#### 🔧 Técnico & Dados")
+_nav_btn("📁 Dados")
+_nav_btn("🔍 Análise Exploratória")
+_nav_btn("⚙️ Feature Engineering")
+_nav_btn("🤖 Modelo")
+_nav_btn("🚀 Pipeline Completo")
+_nav_btn("🏗️ Arquitetura")
+
+pagina = st.session_state["pagina"]
 
 st.sidebar.divider()
 
@@ -216,6 +229,7 @@ with _hdr_col_txt:
 
 # --- helper para reexecutar pipeline via botao da sidebar ---
 if btn_reexecutar:
+    st.session_state["pagina"] = "🚀 Pipeline Completo"
     pagina = "🚀 Pipeline Completo"
 
 # ---- VISAO EXECUTIVA ----
