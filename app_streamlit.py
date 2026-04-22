@@ -63,7 +63,7 @@ st.set_page_config(
 )
 
 st.title("Guardiao Nuclea")
-st.caption("Challenge FIAP/Nuclea 2025 - Equipe DataMinds")
+st.caption("Plataforma de Inteligência Preditiva de Risco — Núclea")
 
 # sidebar com as acoes
 st.sidebar.header("Acoes")
@@ -267,7 +267,7 @@ with tab_exec:
             st.markdown("### 📋 Resumo Executivo")
             st.info(f"""
 **Guardião Nuclea** é um modelo preditivo de inadimplência para recebíveis de FIDCs, 
-desenvolvido no contexto do Enterprise Challenge FIAP/Núclea 2025.
+desenvolvido internamente pela área de Dados & Analytics da Núclea.
 
 🔹 **Problema:** FIDCs enfrentam taxa média de inadimplência de ~{taxa_inad}%, gerando perdas significativas.
 
@@ -406,5 +406,4 @@ with tab_pipeline:
 
 # footer
 st.sidebar.divider()
-st.sidebar.caption("Guardiao Nuclea v0.3")
-st.sidebar.caption("Sprint 3 - Challenge FIAP/Nuclea 2025")
+st.sidebar.caption("Guardião Nuclea v0.3.0")

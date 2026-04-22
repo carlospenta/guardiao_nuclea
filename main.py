@@ -1,6 +1,5 @@
 """
 Guardiao Nuclea - Ponto de entrada principal
-Challenge FIAP/Nuclea 2025 - Equipe DataMinds
 
 Sobe a API FastAPI e o dashboard Streamlit de uma vez (local)
 No Streamlit Community Cloud, roda apenas o dashboard.

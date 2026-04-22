@@ -1,6 +1,5 @@
 """
-Guardiao Nuclea - MVP Sprint 3
-Challenge FIAP/Nuclea 2025 - Equipe DataMinds
+Guardiao Nuclea - Pipeline Console
 
 Script principal do modelo de inadimplencia pra FIDCs
 usa dados da PCR (boletos) + base auxiliar nuclea
@@ -40,15 +39,15 @@ AUXILIAR_PATH = os.path.join(DATA_DIR, "base_auxiliar_fiap.csv")
 # fallback pro caminho original caso nao tenha copiado os csvs
 if not os.path.exists(BOLETOS_PATH):
     BOLETOS_PATH = os.path.expanduser(
-        "~/Downloads/Massa_Dados_Challgenge_Nuclea_v1(1)/base_boletos_fiap.csv"
+        "~/Downloads/dados_nuclea/base_boletos_fiap.csv"
     )
     AUXILIAR_PATH = os.path.expanduser(
-        "~/Downloads/Massa_Dados_Challgenge_Nuclea_v1(1)/base_auxiliar_fiap.csv"
+        "~/Downloads/dados_nuclea/base_auxiliar_fiap.csv"
     )
 
 # ---- CARGA DOS DADOS ----
 print("=" * 70)
-print("GUARDIÃO NUCLEA — MVP Sprint 3")
+print("GUARDIÃO NUCLEA — Pipeline de Risco")
 print("=" * 70)
 
 print("\n[1/6] Carregando dados...")

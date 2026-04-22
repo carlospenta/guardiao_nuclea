@@ -1,7 +1,7 @@
 # Guardião Nuclea — Núclea FIDC
 
-**Enterprise Challenge FIAP 2025 — Núclea**
-Turma 1TSCOR | Equipe DataMinds
+**Plataforma de Inteligência Preditiva de Risco para Recebíveis**
+Desenvolvido internamente pela área de Dados & Analytics — Núclea
 
 Modelo preditivo de inadimplencia para recebiveis de FIDCs. A ideia é transformar a Nuclea de registradora passiva em plataforma ativa de inteligencia de risco.
 
@@ -122,7 +122,7 @@ Taxa de inadimplencia na base: **10,56%**
 
 ---
 
-## Resultados (Sprint 3)
+## Resultados
 
 | Métrica | Random Forest | Gradient Boosting |
 |---------|:------------:|:-------------------:|
@@ -239,7 +239,7 @@ guardiao_nuclea/
 
 ## Gestão do Projeto
 
-O projeto utiliza **GitHub Projects** com board Kanban para gestão ágil das sprints, com issues organizadas por milestones, labels e datas.
+O projeto utiliza **GitHub Projects** com board Kanban para gestão ágil, com issues organizadas por milestones, labels e datas.
 
 📋 **Board:** [GitHub Projects — Guardião Nuclea](https://github.com/carlospenta/guardiao_nuclea/projects)
 
@@ -260,21 +260,21 @@ O projeto utiliza **GitHub Projects** com board Kanban para gestão ágil das sp
 
 ## Equipe
 
-| Nome | RM |
-|------|-----|
-| Carlos Almeida | 568444 |
-| Larissa Mota | 567514 |
-| Eduardo Casagrande | 567323 |
+| Nome | Papel |
+|------|-------|
+| Carlos Almeida | Data Engineer / ML |
+| Larissa Mota | Frontend / Docs |
+| Eduardo Casagrande | Backend / QA |
 
 ---
 
 ## Roadmap
 
-- [x] Sprint 1 — Ideação e contextualização
-- [x] Sprint 2 — Arquitetura e protótipos
-- [x] Sprint 3 — MVP com EDA, modelo preditivo, API FastAPI, dashboard Streamlit (incl. Visão Executiva), SQLite, diagramas de arquitetura e deploy Cloud *(atual)*
-- [ ] Sprint 4 — Solução final e video pitch
+- [x] Fase 1 — Ideação e contextualização
+- [x] Fase 2 — Arquitetura e protótipos
+- [x] Fase 3 — MVP com EDA, modelo preditivo, API FastAPI, dashboard Streamlit (incl. Visão Executiva), SQLite, diagramas de arquitetura e deploy Cloud *(atual)*
+- [ ] Fase 4 — Solução final e apresentação
 
 ---
 
-*FIAP — Enterprise Challenge Núclea 2025*
+*Núclea — Inteligência Preditiva de Risco para FIDCs*
