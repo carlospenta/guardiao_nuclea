@@ -61,7 +61,7 @@ def _chamar_direto(endpoint):
 
 st.set_page_config(
     page_title="Guardiao Nuclea",
-    page_icon="🛡️",
+    page_icon="https://img.icons8.com/fluency/96/shield.png",
     layout="wide",
 )
 
@@ -198,8 +198,13 @@ st.sidebar.caption(f"© {datetime.date.today().year} Núclea — Dados & Analyti
 # ============================================================
 # HEADER PRINCIPAL
 # ============================================================
-st.title("🛡️ Guardião Nuclea")
-st.caption("Plataforma de Inteligência Preditiva de Risco — Núclea")
+# Header com icone amarelo consistente com a sidebar
+_hdr_col_icon, _hdr_col_txt = st.columns([0.06, 0.94])
+with _hdr_col_icon:
+    st.image("https://img.icons8.com/fluency/96/shield.png", width=48)
+with _hdr_col_txt:
+    st.title("Guardião Nuclea")
+    st.caption("Plataforma de Inteligência Preditiva de Risco — Núclea")
 
 
 # ============================================================
