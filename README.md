@@ -74,13 +74,16 @@ A aplicação roda no **Streamlit Community Cloud** sem precisar de servidor Fas
 
 ## Dashboard
 
-O dashboard Streamlit possui uma **sidebar completa** com navegação, filtros, ações rápidas e status do sistema, além de **7 páginas**:
+O dashboard Streamlit possui uma **sidebar completa** com navegação, filtros, ações rápidas e status do sistema, além de **10 páginas**:
 
 ### Páginas
 
 | Página | Descrição |
 |--------|-----------|
 | 📊 **Visão Executiva** | KPIs de negócio, impacto financeiro estimado, gráficos de portfólio (pizza + barras), performance dos modelos, resumo executivo |
+| 🏦 **Dashboard Risco Carteira** | KPIs de inadimplência atual/projetada, risco médio, recebíveis em alto risco, evolução do score por segmento, ranking de cedentes mais arriscados |
+| 👤 **Detalhe do Cedente** | Score de risco com classificação, evolução temporal, eventos relevantes, exposição consolidada, faturamento, lucratividade e liquidez |
+| 🚨 **Gestão de Alertas** | Fila de alertas priorizados com filtros (criticidade, setor, região, status), cores por gravidade e ações recomendadas |
 | 📁 **Dados** | Informações dos datasets (shape, colunas, tipos) com preview dos DataFrames |
 | 🔍 **Análise Exploratória** | Gráficos de tipos de baixa, distribuição de valor nominal e top UFs |
 | ⚙️ **Feature Engineering** | 20 features derivadas, taxa de inadimplência, heatmap de correlação |

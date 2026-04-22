@@ -115,6 +115,9 @@ pagina = st.sidebar.radio(
     "Selecione a visão",
     [
         "📊 Visão Executiva",
+        "🏦 Dashboard Risco Carteira",
+        "👤 Detalhe do Cedente",
+        "🚨 Gestão de Alertas",
         "📁 Dados",
         "🔍 Análise Exploratória",
         "⚙️ Feature Engineering",
@@ -382,6 +385,232 @@ permitindo identificar ~87% dos inadimplentes com alta precisão.
 🔹 **Impacto:** Potencial de reduzir a taxa de inadimplência de ~{taxa_inad}% para ~6%, 
 gerando economia estimada de R$ {economia / 1e6:.1f}M no portfólio analisado.
 """)
+
+# ---- DASHBOARD RISCO CARTEIRA ----
+elif pagina == "🏦 Dashboard Risco Carteira":
+    st.subheader("Dashboard de Risco da Carteira")
+    st.caption("Visão executiva — estado de saúde da carteira de FIDCs")
+
+    import pandas as pd
+    import numpy as np
+    import matplotlib.pyplot as plt
+
+    with st.spinner("Carregando dados da carteira..."):
+        _cart_dados, _cart_err = chamar_api("features")
+
+    if _cart_err:
+        st.error(_cart_err)
+    else:
+        taxa_inad_atual = _cart_dados["taxa_inadimplencia"]
+        taxa_inad_proj = round(taxa_inad_atual * 1.3, 1)  # projeção simulada
+
+        # KPIs principais
+        k1, k2, k3, k4 = st.columns(4)
+        with k1:
+            st.markdown("**Inadimplência Atual**")
+            st.markdown(f"*(Convênios Médicos)*")
+            st.markdown(f"### {taxa_inad_atual}%")
+        with k2:
+            st.markdown("**Inadimplência Projetada**")
+            st.markdown(f"### {taxa_inad_proj}%")
+        with k3:
+            st.markdown("**Risco Médio da Carteira – Saúde**")
+            st.markdown(f"### 223")
+        with k4:
+            st.markdown("**Recebíveis em Alto Risco** *(Saúde)*")
+            st.markdown(f"### 5,8 M")
+
+        # Filtros de segmento
+        seg_cols = st.columns(5)
+        segmentos = ["Convênios", "Prestadores", "Setor Saúde", "Região", "Tipo de Lastro"]
+        seg_sel = seg_cols[0].radio("Segmento", segmentos, horizontal=True, label_visibility="collapsed") if len(segmentos) > 0 else segmentos[0]
+        # Mostrar como pills
+        st.markdown(" ".join([f"`{s}`" for s in segmentos]))
+
+        st.markdown("---")
+
+        col_chart, col_table = st.columns(2)
+
+        with col_chart:
+            st.markdown("#### Evolução do Score de Risco – Segmento Saúde")
+            meses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"]
+            np.random.seed(42)
+            scores_evo = [680, 670, 650, 620, 580, 540, 500, 470, 430, 400, 380, 350]
+            fig_evo, ax_evo = plt.subplots(figsize=(8, 4))
+            ax_evo.plot(meses, scores_evo, color="#1e3a5f", linewidth=2.5, marker="o", markersize=4)
+            ax_evo.fill_between(meses, scores_evo, alpha=0.08, color="#1e3a5f")
+            ax_evo.set_ylim(0, 800)
+            ax_evo.set_ylabel("Score")
+            ax_evo.spines["top"].set_visible(False)
+            ax_evo.spines["right"].set_visible(False)
+            fig_evo.tight_layout()
+            st.pyplot(fig_evo)
+            plt.close(fig_evo)
+
+        with col_table:
+            st.markdown("#### Cedentes mais arriscados – Saúde")
+            df_ranking = pd.DataFrame({
+                "Cedente / Sacado": ["Cedente A / Sacado A", "Cedente B / Sacado B",
+                                     "Cedente C / Sacado C", "Cedente D / Sacado D"],
+                "Score de Risco": [850, 790, 765, 720],
+                "Exposição (R$)": ["1.750.000", "1.230.000", "982.000", "861.000"],
+            })
+            st.dataframe(df_ranking, use_container_width=True, hide_index=True)
+
+
+# ---- DETALHE DO CEDENTE ----
+elif pagina == "👤 Detalhe do Cedente":
+    st.subheader("Detalhe do Cedente")
+    st.caption("Visão analítica — score, eventos relevantes e exposição consolidada")
+
+    import pandas as pd
+    import numpy as np
+    import matplotlib.pyplot as plt
+
+    # Seletor de cedente (simulado)
+    cedentes_demo = ["EMPRESA X", "EMPRESA Y", "EMPRESA Z"]
+    cedente_sel = st.selectbox("Selecione o cedente", cedentes_demo)
+
+    np.random.seed(hash(cedente_sel) % 2**32)
+    score_atual = np.random.randint(400, 900)
+    if score_atual >= 700:
+        classif = "Risco Baixo"
+        cor_classif = "🟢"
+    elif score_atual >= 500:
+        classif = "Risco Médio"
+        cor_classif = "🟡"
+    else:
+        classif = "Risco Alto"
+        cor_classif = "🔴"
+
+    st.markdown(f"### {cedente_sel}")
+    st.caption("CNPJ: 12.345.678/0001-99")
+
+    st.markdown("---")
+
+    col_score, col_evo = st.columns(2)
+    with col_score:
+        st.markdown("**SCORE DE RISCO**")
+        st.markdown(f"# {score_atual}")
+        st.markdown(f"{cor_classif} {classif}")
+    with col_evo:
+        st.markdown("**EVOLUÇÃO DO SCORE**")
+        scores_hist = [score_atual - 80, score_atual - 40, score_atual]
+        labels_hist = ["6 meses atrás", "2 meses atrás", "Hoje"]
+        fig_sc, ax_sc = plt.subplots(figsize=(5, 2.5))
+        ax_sc.plot(labels_hist, scores_hist, color="#1e3a5f", linewidth=2, marker="o")
+        ax_sc.set_ylim(min(scores_hist) - 50, max(scores_hist) + 50)
+        ax_sc.spines["top"].set_visible(False)
+        ax_sc.spines["right"].set_visible(False)
+        fig_sc.tight_layout()
+        st.pyplot(fig_sc)
+        plt.close(fig_sc)
+
+    st.markdown("---")
+
+    col_eventos, col_financeiro = st.columns(2)
+    with col_eventos:
+        st.markdown("**EVENTOS RELEVANTES**")
+        eventos = [
+            ("28/01/2024", "Emissão de debêntures"),
+            ("15/03/2024", "Atraso em pagamentos"),
+            ("15/03/2024", "Falência de fornecedor"),
+            ("14/04/2024", "Falência de fornecedor"),
+        ]
+        for data_ev, desc_ev in eventos:
+            st.markdown(f"● **{data_ev}** — {desc_ev}")
+
+    with col_financeiro:
+        st.markdown("**EXPOSIÇÃO CONSOLIDADA**")
+        st.markdown("### R$ 10,2M")
+        st.markdown("")
+        st.markdown("**FATURAMENTO**")
+        st.markdown("### R$ 22,5M")
+
+        fc1, fc2 = st.columns(2)
+        with fc1:
+            st.markdown("**LUCRATIVIDADE**")
+            st.markdown("### 13,5%")
+        with fc2:
+            st.markdown("**LIQUIDEZ**")
+            st.markdown("### 1,8")
+
+    st.markdown("---")
+    st.markdown("**KPIs**")
+    st.info("Seção de KPIs adicionais do cedente — personalizável por perfil de usuário.")
+
+
+# ---- GESTÃO DE ALERTAS ----
+elif pagina == "🚨 Gestão de Alertas":
+    st.subheader("Gestão de Alertas de Risco")
+    st.caption("Operação & Governança — fila de alertas priorizados para o time de risco de FIDCs")
+
+    import pandas as pd
+    import numpy as np
+
+    # Filtros
+    st.markdown("#### Filtros")
+    fc1, fc2, fc3, fc4 = st.columns(4)
+    with fc1:
+        filt_crit = st.selectbox("Criticidade", ["Tudo", "Crítica", "Alta", "Média", "Baixa"])
+    with fc2:
+        filt_setor = st.selectbox("Setor", ["Tudo", "Saúde", "Educação", "Varejo", "Indústria"])
+    with fc3:
+        filt_regiao = st.selectbox("Região", ["Tudo", "Sudeste", "Sul", "Nordeste", "Norte", "Centro-Oeste"])
+    with fc4:
+        filt_status = st.selectbox("Status", ["Tudo", "Em análise", "Mitigado", "Escalado", "Resolvido"])
+
+    st.markdown("---")
+
+    # Tabela de alertas simulada
+    np.random.seed(7)
+    n_alertas = 15
+    gravidades = ["Crítica", "Alta", "Média", "Baixa"]
+    status_list = ["Em análise", "Mitigado", "Escalado", "Resolvido"]
+    setores = ["Saúde", "Educação", "Varejo", "Indústria"]
+    regioes = ["Sudeste", "Sul", "Nordeste", "Norte", "Centro-Oeste"]
+
+    df_alertas = pd.DataFrame({
+        "Data do Alerta": pd.date_range("2024-04-01", periods=n_alertas, freq="-1D").strftime("%d/%m/%Y"),
+        "Cedente": [f"Cedente {chr(65+i)}" for i in range(n_alertas)],
+        "Gravidade": np.random.choice(gravidades, n_alertas, p=[0.15, 0.35, 0.30, 0.20]),
+        "Score": np.random.randint(200, 950, n_alertas),
+        "Setor": np.random.choice(setores, n_alertas),
+        "Região": np.random.choice(regioes, n_alertas),
+        "Status": np.random.choice(status_list, n_alertas, p=[0.4, 0.2, 0.2, 0.2]),
+        "Ação Recomendada": np.random.choice(
+            ["Revisar exposição", "Escalar para comitê", "Monitorar", "Reduzir posição", "Solicitar garantias"],
+            n_alertas),
+    })
+
+    # Aplicar filtros
+    if filt_crit != "Tudo":
+        df_alertas = df_alertas[df_alertas["Gravidade"] == filt_crit]
+    if filt_setor != "Tudo":
+        df_alertas = df_alertas[df_alertas["Setor"] == filt_setor]
+    if filt_regiao != "Tudo":
+        df_alertas = df_alertas[df_alertas["Região"] == filt_regiao]
+    if filt_status != "Tudo":
+        df_alertas = df_alertas[df_alertas["Status"] == filt_status]
+
+    def _color_gravidade(val):
+        cores = {"Crítica": "#dc2626", "Alta": "#ea580c", "Média": "#ca8a04", "Baixa": "#16a34a"}
+        cor = cores.get(val, "#666")
+        return f"background-color: {cor}; color: white; border-radius: 4px; padding: 2px 8px"
+
+    st.dataframe(
+        df_alertas.style.map(_color_gravidade, subset=["Gravidade"]),
+        use_container_width=True,
+        hide_index=True,
+        height=500,
+    )
+
+    st.caption(f"{len(df_alertas)} alertas exibidos")
+
+    st.markdown("---")
+    st.markdown("**Ações rápidas:** Em análise · Mitigado · Escalado · Resolvido")
+    st.info("Trilha de auditoria: histórico de quem tratou cada alerta, qual decisão foi tomada e evidências associadas.")
+
 
 # ---- DADOS ----
 elif pagina == "📁 Dados":
