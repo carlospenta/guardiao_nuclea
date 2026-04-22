@@ -74,18 +74,28 @@ A aplicação roda no **Streamlit Community Cloud** sem precisar de servidor Fas
 
 ## Dashboard
 
-O dashboard Streamlit possui 6 abas:
+O dashboard Streamlit possui uma **sidebar completa** com navegação, filtros, ações rápidas e status do sistema, além de **7 páginas**:
 
-| Aba | Descrição |
-|-----|-----------|
+### Páginas
+
+| Página | Descrição |
+|--------|-----------|
 | 📊 **Visão Executiva** | KPIs de negócio, impacto financeiro estimado, gráficos de portfólio (pizza + barras), performance dos modelos, resumo executivo |
-| **Dados** | Informações dos datasets (shape, colunas, tipos) |
-| **EDA** | Análise exploratória com gráficos de tipos de baixa, valor nominal e UFs |
-| **Features** | Feature engineering — 20 features, taxa de inadimplência, heatmap de correlação |
-| **Modelo** | Métricas dos modelos (AUC-ROC, accuracy, precision, recall), curva ROC, matriz de confusão |
-| **Pipeline Completo** | Executa todo o pipeline de uma vez |
+| 📁 **Dados** | Informações dos datasets (shape, colunas, tipos) com preview dos DataFrames |
+| 🔍 **Análise Exploratória** | Gráficos de tipos de baixa, distribuição de valor nominal e top UFs |
+| ⚙️ **Feature Engineering** | 20 features derivadas, taxa de inadimplência, heatmap de correlação |
+| 🤖 **Modelo** | Métricas dos modelos (AUC-ROC, accuracy, precision, recall), curva ROC, matriz de confusão |
+| 🚀 **Pipeline Completo** | Executa todo o pipeline de uma vez |
+| 🏗️ **Arquitetura** | Seletor dos 6 diagramas de arquitetura com visualização e tabela de tecnologias |
 
-A aba **Visão Executiva** é voltada para stakeholders e gestores, apresentando:
+### Sidebar
+
+- **Navegação** — seletor de página via radio buttons
+- **Filtros** — data início/fim e nível de risco mínimo (Baixo → Crítico)
+- **Ações Rápidas** — reexecutar pipeline, limpar cache, exportar relatório
+- **Status do Sistema** — modelo treinado (com data), banco SQLite, contagem de gráficos disponíveis
+
+A **Visão Executiva** é voltada para stakeholders e gestores, apresentando:
 - KPIs: total de boletos, CNPJs analisados, taxa de inadimplência, AUC-ROC
 - Impacto financeiro: volume analisado, perda estimada, economia potencial com o modelo
 - Gráficos: composição do portfólio, impacto financeiro, comparação de modelos
@@ -208,7 +218,7 @@ guardiao_nuclea/
 ├── versao_console.py               # pipeline completo no terminal
 ├── pipeline.py                     # funcoes do pipeline (reusavel)
 ├── api.py                          # API FastAPI
-├── app_streamlit.py                # dashboard Streamlit (6 abas incl. Visão Executiva)
+├── app_streamlit.py                # dashboard Streamlit (7 páginas + sidebar completa)
 ├── database.py                     # modulo SQLite (carga e persistencia)
 ├── gerar_diagrama_arquitetura.py   # gera 5 diagramas de arquitetura em PNG
 ├── modelo_treinado.pkl             # modelo salvo (carrega automatico)
@@ -239,7 +249,7 @@ guardiao_nuclea/
 
 ## Gestão do Projeto
 
-O projeto utiliza **GitHub Projects** com board Kanban para gestão ágil, com issues organizadas por milestones, labels e datas.
+O projeto utiliza **GitHub Projects** com board Kanban para gestão ágil, com issues organizadas por milestones, labels e datas (Start Date / Target Date).
 
 📋 **Board:** [GitHub Projects — Guardião Nuclea](https://github.com/carlospenta/guardiao_nuclea/projects)
 
@@ -272,7 +282,7 @@ O projeto utiliza **GitHub Projects** com board Kanban para gestão ágil, com i
 
 - [x] Fase 1 — Ideação e contextualização
 - [x] Fase 2 — Arquitetura e protótipos
-- [x] Fase 3 — MVP com EDA, modelo preditivo, API FastAPI, dashboard Streamlit (incl. Visão Executiva), SQLite, diagramas de arquitetura e deploy Cloud *(atual)*
+- [x] Fase 3 — MVP com pipeline preditivo, API FastAPI, dashboard Streamlit (7 páginas incl. Visão Executiva e Arquitetura), sidebar com filtros e ações rápidas, SQLite, diagramas de arquitetura e deploy Cloud *(atual)*
 - [ ] Fase 4 — Solução final e apresentação
 
 ---
