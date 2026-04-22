@@ -7,6 +7,7 @@ import streamlit as st
 import os
 import requests
 import json
+import datetime
 from PIL import Image
 
 API_URL = "http://localhost:8000"
@@ -30,6 +31,8 @@ def _chamar_direto(endpoint):
                 "auxiliar": {"linhas": auxiliar.shape[0], "colunas": auxiliar.shape[1]},
                 "colunas_boletos": list(boletos.columns),
                 "colunas_auxiliar": list(auxiliar.columns),
+                "boletos_df": boletos,
+                "auxiliar_df": auxiliar,
             }, None
         elif endpoint == "eda":
             boletos, auxiliar = carregar_dados()
@@ -61,12 +64,6 @@ st.set_page_config(
     page_icon="🛡️",
     layout="wide",
 )
-
-st.title("Guardiao Nuclea")
-st.caption("Plataforma de Inteligência Preditiva de Risco — Núclea")
-
-# sidebar com as acoes
-st.sidebar.header("Acoes")
 
 OUTPUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "output")
 
@@ -100,27 +97,133 @@ def mostrar_graficos(lista_graficos):
                 st.image(img, caption=nome, use_container_width=True)
 
 
-# ---- tabs principais ----
-tab_exec, tab_dados, tab_eda, tab_features, tab_modelo, tab_pipeline = st.tabs([
-    "📊 Visão Executiva", "Dados", "EDA", "Features", "Modelo", "Pipeline Completo"
-])
+# ============================================================
+# SIDEBAR
+# ============================================================
+st.sidebar.image(
+    "https://img.icons8.com/fluency/96/shield.png",
+    width=64,
+)
+st.sidebar.title("Guardião Nuclea")
+st.sidebar.caption("Inteligência Preditiva de Risco")
 
-with tab_exec:
+st.sidebar.divider()
+
+# --- Navegacao ---
+st.sidebar.subheader("🧭 Navegação")
+pagina = st.sidebar.radio(
+    "Selecione a visão",
+    [
+        "📊 Visão Executiva",
+        "📁 Dados",
+        "🔍 Análise Exploratória",
+        "⚙️ Feature Engineering",
+        "🤖 Modelo",
+        "🚀 Pipeline Completo",
+        "🏗️ Arquitetura",
+    ],
+    label_visibility="collapsed",
+)
+
+st.sidebar.divider()
+
+# --- Filtros ---
+st.sidebar.subheader("🎛️ Filtros")
+
+filtro_risco = st.sidebar.select_slider(
+    "Nível de risco mínimo",
+    options=["Baixo", "Médio", "Alto", "Crítico"],
+    value="Baixo",
+)
+
+filtro_data_inicio = st.sidebar.date_input(
+    "Data início",
+    value=datetime.date(2025, 1, 1),
+    min_value=datetime.date(2020, 1, 1),
+    max_value=datetime.date.today(),
+)
+filtro_data_fim = st.sidebar.date_input(
+    "Data fim",
+    value=datetime.date.today(),
+    min_value=datetime.date(2020, 1, 1),
+    max_value=datetime.date.today(),
+)
+
+st.sidebar.divider()
+
+# --- Acoes rapidas ---
+st.sidebar.subheader("⚡ Ações Rápidas")
+
+btn_reexecutar = st.sidebar.button("🔄 Reexecutar Pipeline", use_container_width=True)
+btn_limpar_cache = st.sidebar.button("🗑️ Limpar Cache", use_container_width=True)
+btn_exportar = st.sidebar.button("📥 Exportar Relatório", use_container_width=True)
+
+if btn_limpar_cache:
+    st.cache_data.clear()
+    if _no_cloud():
+        from pipeline import _cache as pc
+        pc.clear()
+    st.sidebar.success("Cache limpo!")
+
+if btn_exportar:
+    st.sidebar.info("Relatório disponível na aba ativa.")
+
+st.sidebar.divider()
+
+# --- Status do sistema ---
+st.sidebar.subheader("📡 Status")
+
+modelo_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "modelo_treinado.pkl")
+if os.path.exists(modelo_path):
+    mod_time = datetime.datetime.fromtimestamp(os.path.getmtime(modelo_path))
+    st.sidebar.success(f"Modelo treinado ✓")
+    st.sidebar.caption(f"Atualizado em {mod_time.strftime('%d/%m/%Y %H:%M')}")
+else:
+    st.sidebar.warning("Modelo não treinado")
+
+db_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "guardiao_nuclea.db")
+if os.path.exists(db_path):
+    st.sidebar.success("Banco SQLite ✓")
+else:
+    st.sidebar.warning("Banco SQLite não encontrado")
+
+graficos_existentes = [f for f in os.listdir(OUTPUT_DIR) if f.endswith(".png")] if os.path.exists(OUTPUT_DIR) else []
+st.sidebar.caption(f"{len(graficos_existentes)} gráficos disponíveis")
+
+st.sidebar.divider()
+st.sidebar.caption("Guardião Nuclea v0.4.0")
+st.sidebar.caption(f"© {datetime.date.today().year} Núclea — Dados & Analytics")
+
+
+# ============================================================
+# HEADER PRINCIPAL
+# ============================================================
+st.title("🛡️ Guardião Nuclea")
+st.caption("Plataforma de Inteligência Preditiva de Risco — Núclea")
+
+
+# ============================================================
+# PAGINAS
+# ============================================================
+
+# --- helper para reexecutar pipeline via botao da sidebar ---
+if btn_reexecutar:
+    pagina = "🚀 Pipeline Completo"
+
+# ---- VISAO EXECUTIVA ----
+if pagina == "📊 Visão Executiva":
     st.subheader("Visão Executiva — Guardião Nuclea")
     st.write("Resumo de negócio do modelo preditivo de inadimplência para FIDCs")
 
-    # carrega dados automaticamente
     with st.spinner("Carregando dados..."):
         _exec_dados, _exec_err = chamar_api("dados")
 
     if _exec_err:
         st.error(_exec_err)
     else:
-        # --- KPIs de negocio ---
         total_boletos = _exec_dados["boletos"]["linhas"]
         total_cnpjs = _exec_dados["auxiliar"]["linhas"]
 
-        # carregar features pra ter taxa de inadimplencia
         with st.spinner("Processando indicadores..."):
             _exec_feat, _exec_feat_err = chamar_api("features")
 
@@ -131,7 +234,6 @@ with tab_exec:
             n_inad = _exec_feat["inadimplentes"]
             n_adim = _exec_feat["adimplentes"]
 
-            # carregar metricas do modelo
             with st.spinner("Carregando modelo..."):
                 _exec_modelo, _exec_modelo_err = chamar_api("treinar")
 
@@ -155,12 +257,11 @@ with tab_exec:
             st.markdown("---")
             st.markdown("### 💰 Impacto Financeiro Estimado")
 
-            # estimativas de negocio
             import numpy as np
-            vlr_medio_boleto = 15_000  # estimativa conservadora
+            vlr_medio_boleto = 15_000
             volume_total = total_boletos * vlr_medio_boleto
             perda_atual = volume_total * (taxa_inad / 100)
-            perda_com_modelo = volume_total * 0.06  # meta de 6%
+            perda_com_modelo = volume_total * 0.06
             economia = perda_atual - perda_com_modelo
 
             f1, f2, f3 = st.columns(3)
@@ -182,7 +283,6 @@ with tab_exec:
             col_g1, col_g2 = st.columns(2)
 
             with col_g1:
-                # grafico pizza inadimplencia
                 import matplotlib.pyplot as plt
                 fig_pie, ax_pie = plt.subplots(figsize=(6, 4))
                 cores = ["#22c55e", "#ef4444"]
@@ -196,7 +296,6 @@ with tab_exec:
                 plt.close(fig_pie)
 
             with col_g2:
-                # grafico de barras - impacto financeiro
                 fig_bar, ax_bar = plt.subplots(figsize=(6, 4))
                 categorias = ["Perda Atual\n(sem modelo)", "Perda Projetada\n(com modelo)", "Economia\nEstimada"]
                 valores = [perda_atual / 1e6, perda_com_modelo / 1e6, economia / 1e6]
@@ -219,7 +318,6 @@ with tab_exec:
             if not _exec_modelo_err:
                 p1, p2 = st.columns(2)
                 with p1:
-                    # gauge-like visual do AUC
                     fig_auc, ax_auc = plt.subplots(figsize=(6, 4))
                     modelos = ["Random Forest", "Gradient Boosting"]
                     aucs = [_exec_modelo["random_forest"]["auc_roc"],
@@ -239,7 +337,6 @@ with tab_exec:
                     plt.close(fig_auc)
 
                 with p2:
-                    # metricas do melhor modelo em tabela
                     st.markdown(f"**Melhor modelo: {_exec_modelo['melhor_modelo']}**")
                     best_key = "gradient_boosting" if "Gradient" in _exec_modelo["melhor_modelo"] else "random_forest"
                     report = _exec_modelo[best_key]["report"]
@@ -256,7 +353,6 @@ with tab_exec:
 """)
                     st.markdown(f"Treino: {_exec_modelo['treino_size']} | Teste: {_exec_modelo['teste_size']}")
 
-            # graficos do modelo ja gerados
             st.markdown("---")
             st.markdown("### 📈 Gráficos de Análise")
             graficos_exec = ["05_curva_roc.png", "08_dist_score_risco.png",
@@ -282,128 +378,208 @@ permitindo identificar ~87% dos inadimplentes com alta precisão.
 gerando economia estimada de R$ {economia / 1e6:.1f}M no portfólio analisado.
 """)
 
-with tab_dados:
-    st.subheader("Carga dos Dados")
-    if st.button("Carregar dados", key="btn_dados"):
-        with st.spinner("Carregando..."):
-            data, erro = chamar_api("dados")
-        if erro:
-            st.error(erro)
-        else:
-            col1, col2 = st.columns(2)
-            with col1:
-                st.metric("Boletos", f"{data['boletos']['linhas']} registros")
-                st.write("Colunas:", data["colunas_boletos"])
-            with col2:
-                st.metric("Auxiliar", f"{data['auxiliar']['linhas']} registros")
-                st.write("Colunas:", data["colunas_auxiliar"])
+# ---- DADOS ----
+elif pagina == "📁 Dados":
+    st.subheader("📁 Carga dos Dados")
+    st.write("Visualize as bases de dados utilizadas pelo modelo.")
 
-with tab_eda:
-    st.subheader("Analise Exploratoria")
-    if st.button("Rodar EDA", key="btn_eda"):
+    with st.spinner("Carregando dados..."):
+        data, erro = chamar_api("dados")
+
+    if erro:
+        st.error(erro)
+    else:
+        col1, col2 = st.columns(2)
+        with col1:
+            st.metric("Boletos", f"{data['boletos']['linhas']} registros")
+            st.write("Colunas:", data["colunas_boletos"])
+        with col2:
+            st.metric("Auxiliar", f"{data['auxiliar']['linhas']} registros")
+            st.write("Colunas:", data["colunas_auxiliar"])
+
+        # mostrar preview dos dados se disponivel (modo cloud)
+        if "boletos_df" in data:
+            st.divider()
+            st.markdown("### 🔎 Preview dos Dados")
+            import pandas as pd
+            tab_bol, tab_aux = st.tabs(["Boletos", "Auxiliar"])
+            with tab_bol:
+                df_bol = data["boletos_df"]
+                st.dataframe(df_bol.head(100), use_container_width=True, height=400)
+                st.caption(f"Exibindo 100 de {len(df_bol)} registros")
+            with tab_aux:
+                df_aux = data["auxiliar_df"]
+                st.dataframe(df_aux.head(100), use_container_width=True, height=400)
+                st.caption(f"Exibindo 100 de {len(df_aux)} registros")
+
+# ---- EDA ----
+elif pagina == "🔍 Análise Exploratória":
+    st.subheader("🔍 Análise Exploratória")
+
+    if st.button("Rodar EDA", key="btn_eda", use_container_width=False):
         with st.spinner("Processando EDA..."):
             data, erro = chamar_api("eda")
         if erro:
             st.error(erro)
         else:
-            col1, col2 = st.columns(2)
-            with col1:
-                st.write("**Shape boletos:**", data["boletos_shape"])
-                st.write("**Shape auxiliar:**", data["auxiliar_shape"])
-            with col2:
-                st.write("**Tipos de baixa:**")
-                st.json(data["tipos_baixa"])
+            st.session_state["eda_data"] = data
 
-            st.write("**Nulos boletos:**")
-            st.json(data["boletos_nulos"])
+    if "eda_data" in st.session_state:
+        data = st.session_state["eda_data"]
+        col1, col2 = st.columns(2)
+        with col1:
+            st.write("**Shape boletos:**", data["boletos_shape"])
+            st.write("**Shape auxiliar:**", data["auxiliar_shape"])
+        with col2:
+            st.write("**Tipos de baixa:**")
+            st.json(data["tipos_baixa"])
 
-            st.divider()
-            st.write("**Graficos gerados:**")
-            mostrar_graficos(data.get("graficos", []))
+        st.write("**Nulos boletos:**")
+        st.json(data["boletos_nulos"])
 
-with tab_features:
-    st.subheader("Feature Engineering")
-    if st.button("Rodar Feature Engineering", key="btn_feat"):
+        st.divider()
+        st.write("**Gráficos gerados:**")
+        mostrar_graficos(data.get("graficos", []))
+
+# ---- FEATURES ----
+elif pagina == "⚙️ Feature Engineering":
+    st.subheader("⚙️ Feature Engineering")
+
+    if st.button("Rodar Feature Engineering", key="btn_feat", use_container_width=False):
         with st.spinner("Criando features..."):
             data, erro = chamar_api("features")
         if erro:
             st.error(erro)
         else:
-            col1, col2, col3 = st.columns(3)
-            with col1:
-                st.metric("Taxa Inadimplencia", f"{data['taxa_inadimplencia']}%")
-            with col2:
-                st.metric("Inadimplentes", data["inadimplentes"])
-            with col3:
-                st.metric("Adimplentes", data["adimplentes"])
+            st.session_state["feat_data"] = data
 
-            st.write(f"**Dataset:** {data['shape'][0]} linhas, {data['shape'][1]} colunas")
-            st.write("**Features usadas:**")
+    if "feat_data" in st.session_state:
+        data = st.session_state["feat_data"]
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.metric("Taxa Inadimplencia", f"{data['taxa_inadimplencia']}%")
+        with col2:
+            st.metric("Inadimplentes", data["inadimplentes"])
+        with col3:
+            st.metric("Adimplentes", data["adimplentes"])
+
+        st.write(f"**Dataset:** {data['shape'][0]} linhas, {data['shape'][1]} colunas")
+
+        with st.expander("📋 Features utilizadas", expanded=False):
             for f in data["features"]:
-                st.write(f"- {f}")
+                st.write(f"- `{f}`")
 
-            st.divider()
-            mostrar_graficos([data.get("grafico", "")])
+        st.divider()
+        mostrar_graficos([data.get("grafico", "")])
 
-with tab_modelo:
-    st.subheader("Treinamento dos Modelos")
-    if st.button("Treinar modelos", key="btn_treinar"):
+# ---- MODELO ----
+elif pagina == "🤖 Modelo":
+    st.subheader("🤖 Treinamento dos Modelos")
+
+    col_btn1, col_btn2 = st.columns([1, 3])
+    with col_btn1:
+        treinar = st.button("Treinar modelos", key="btn_treinar")
+
+    if treinar:
         with st.spinner("Treinando... isso demora uns segundos"):
             data, erro = chamar_api("treinar")
         if erro:
             st.error(erro)
         else:
-            st.success(f"Melhor modelo: **{data['melhor_modelo']}** (AUC-ROC: {data['melhor_auc']})")
+            st.session_state["modelo_data"] = data
 
-            col1, col2 = st.columns(2)
-            with col1:
-                st.write("**Random Forest**")
-                st.metric("AUC-ROC", data["random_forest"]["auc_roc"])
+    if "modelo_data" in st.session_state:
+        data = st.session_state["modelo_data"]
+        st.success(f"Melhor modelo: **{data['melhor_modelo']}** (AUC-ROC: {data['melhor_auc']})")
+
+        col1, col2 = st.columns(2)
+        with col1:
+            st.write("**Random Forest**")
+            st.metric("AUC-ROC", data["random_forest"]["auc_roc"])
+            with st.expander("Classification Report"):
                 st.json(data["random_forest"]["report"])
-            with col2:
-                st.write("**Gradient Boosting**")
-                st.metric("AUC-ROC", data["gradient_boosting"]["auc_roc"])
+        with col2:
+            st.write("**Gradient Boosting**")
+            st.metric("AUC-ROC", data["gradient_boosting"]["auc_roc"])
+            with st.expander("Classification Report"):
                 st.json(data["gradient_boosting"]["report"])
 
-            st.divider()
-            st.write(f"**Validacao cruzada (5-fold):** AUC medio = {data['cv_auc_medio']} ± {data['cv_auc_std']}")
-            st.write(f"Treino: {data['treino_size']} | Teste: {data['teste_size']}")
+        st.divider()
+        st.write(f"**Validação cruzada (5-fold):** AUC médio = {data['cv_auc_medio']} ± {data['cv_auc_std']}")
+        st.write(f"Treino: {data['treino_size']} | Teste: {data['teste_size']}")
 
-            st.divider()
-            st.write("**Graficos do modelo:**")
-            mostrar_graficos(data.get("graficos", []))
+        st.divider()
+        st.write("**Gráficos do modelo:**")
+        mostrar_graficos(data.get("graficos", []))
 
-with tab_pipeline:
-    st.subheader("Pipeline Completo")
+# ---- PIPELINE COMPLETO ----
+elif pagina == "🚀 Pipeline Completo":
+    st.subheader("🚀 Pipeline Completo")
     st.write("Roda todas as etapas de uma vez: carga, EDA, features e treinamento")
 
-    if st.button("Rodar pipeline completo", key="btn_pipeline"):
+    executar = st.button("Rodar pipeline completo", key="btn_pipeline") or btn_reexecutar
+
+    if executar:
         with st.spinner("Rodando pipeline completo... pode demorar um pouco"):
             data, erro = chamar_api("pipeline")
         if erro:
             st.error(erro)
         else:
+            st.session_state["pipeline_data"] = data
             st.success("Pipeline finalizado!")
 
-            # resumo
-            modelo = data["modelo"]
-            feat = data["features"]
+    if "pipeline_data" in st.session_state:
+        data = st.session_state["pipeline_data"]
+        modelo = data["modelo"]
+        feat = data["features"]
 
-            col1, col2, col3, col4 = st.columns(4)
-            with col1:
-                st.metric("Taxa Inadimplencia", f"{feat['taxa_inadimplencia']}%")
-            with col2:
-                st.metric("Melhor Modelo", modelo["melhor_modelo"])
-            with col3:
-                st.metric("AUC-ROC", modelo["melhor_auc"])
-            with col4:
-                st.metric("AUC CV", f"{modelo['cv_auc_medio']} ± {modelo['cv_auc_std']}")
+        col1, col2, col3, col4 = st.columns(4)
+        with col1:
+            st.metric("Taxa Inadimplencia", f"{feat['taxa_inadimplencia']}%")
+        with col2:
+            st.metric("Melhor Modelo", modelo["melhor_modelo"])
+        with col3:
+            st.metric("AUC-ROC", modelo["melhor_auc"])
+        with col4:
+            st.metric("AUC CV", f"{modelo['cv_auc_medio']} ± {modelo['cv_auc_std']}")
 
-            st.divider()
-            st.write("**Todos os graficos:**")
-            todos_graficos = data["eda"].get("graficos", []) + [feat.get("grafico", "")] + modelo.get("graficos", [])
-            mostrar_graficos(todos_graficos)
+        st.divider()
+        st.write("**Todos os gráficos:**")
+        todos_graficos = data["eda"].get("graficos", []) + [feat.get("grafico", "")] + modelo.get("graficos", [])
+        mostrar_graficos(todos_graficos)
 
-# footer
-st.sidebar.divider()
-st.sidebar.caption("Guardião Nuclea v0.3.0")
+# ---- ARQUITETURA ----
+elif pagina == "🏗️ Arquitetura":
+    st.subheader("🏗️ Arquitetura da Solução")
+    st.write("Diagramas de arquitetura do Guardião Nuclea")
+
+    diagramas = {
+        "Arquitetura Técnica": "arquitetura_tecnica.png",
+        "Arquitetura Executiva (MVP)": "arquitetura_executiva_mvp.png",
+        "Arquitetura Final (MVP)": "arquitetura_final_mvp.png",
+        "Jornada do Dado": "fluxograma_jornada_dado.png",
+        "Jornada do Usuário": "fluxograma_jornada_usuario.png",
+        "Visão Geral": "arquitetura_guardiao_nuclea.png",
+    }
+
+    selecionado = st.selectbox("Selecione o diagrama", list(diagramas.keys()))
+    arquivo = diagramas[selecionado]
+    caminho = os.path.join(OUTPUT_DIR, arquivo)
+
+    if os.path.exists(caminho):
+        img = Image.open(caminho)
+        st.image(img, caption=selecionado, use_container_width=True)
+    else:
+        st.warning(f"Diagrama não encontrado: {arquivo}")
+
+    with st.expander("📋 Tecnologias utilizadas"):
+        st.markdown("""
+| Camada | Tecnologia | Função |
+|--------|-----------|--------|
+| **Dados** | Pandas, SQLite | Ingestão, persistência |
+| **ML** | scikit-learn (RF, GB) | Treinamento e predição |
+| **API** | FastAPI, Uvicorn | 8 endpoints REST |
+| **Dashboard** | Streamlit | Visualização interativa |
+| **Visualização** | Matplotlib, Seaborn | Gráficos analíticos |
+| **Deploy** | Streamlit Cloud | Hospedagem do dashboard |
+""")
