@@ -32,11 +32,28 @@ FIDCs tem uma taxa media de inadimplencia de uns 9%, o que da mais ou menos R$ 6
 └─────────────┘    └──────────────────┘    └─────────────────┘    └──────┬───────┘
                                                                          │
                                                                          ▼
-                                                                  ┌──────────────┐
-                                                                  │  Score de    │
-                                                                  │  Risco &     │
-                                                                  │  Alertas     │
-                                                                  └──────────────┘
+┌─────────────┐    ┌──────────────────┐                           ┌──────────────┐
+│  Dashboard  │◀───│   API FastAPI    │◀──────────────────────────│  Score de    │
+│  Streamlit  │    │   8 endpoints    │                           │  Risco &     │
+│  (Cloud)    │    │                  │                           │  Alertas     │
+└─────────────┘    └──────────────────┘                           └──────────────┘
+```
+
+### Diagramas de Arquitetura
+
+O projeto inclui 5 diagramas visuais gerados automaticamente (`gerar_diagrama_arquitetura.py`):
+
+| Diagrama | Arquivo | Descrição |
+|----------|---------|-----------|
+| Arquitetura Técnica | `output/arquitetura_tecnica.png` | 4 camadas (Dados, Processamento, ML, Interface) com componentes laterais |
+| Jornada do Dado | `output/fluxograma_jornada_dado.png` | 8 etapas do dado bruto ao score de risco |
+| Jornada do Usuário | `output/fluxograma_jornada_usuario.png` | 6 passos da experiência do analista |
+| Arquitetura Executiva MVP | `output/arquitetura_executiva_mvp.png` | Visão de alto nível (Entrada → Inteligência → Saída) |
+| Arquitetura Final MVP | `output/arquitetura_final_mvp.png` | 5 camadas completas com fontes externas, deploy e usuários |
+
+Para regenerar os diagramas:
+```bash
+python gerar_diagrama_arquitetura.py
 ```
 
 ### Banco de Dados
@@ -52,6 +69,27 @@ O projeto usa **SQLite** como camada de persistencia:
 A aplicação roda no **Streamlit Community Cloud** sem precisar de servidor FastAPI separado. No Cloud, as funções do pipeline são chamadas diretamente (sem HTTP), mantendo o mesmo comportamento da versão local.
 
 🔗 **App online:** [guardiao-nuclea.streamlit.app](https://guardiao-nuclea.streamlit.app/)
+
+---
+
+## Dashboard
+
+O dashboard Streamlit possui 6 abas:
+
+| Aba | Descrição |
+|-----|-----------|
+| 📊 **Visão Executiva** | KPIs de negócio, impacto financeiro estimado, gráficos de portfólio (pizza + barras), performance dos modelos, resumo executivo |
+| **Dados** | Informações dos datasets (shape, colunas, tipos) |
+| **EDA** | Análise exploratória com gráficos de tipos de baixa, valor nominal e UFs |
+| **Features** | Feature engineering — 20 features, taxa de inadimplência, heatmap de correlação |
+| **Modelo** | Métricas dos modelos (AUC-ROC, accuracy, precision, recall), curva ROC, matriz de confusão |
+| **Pipeline Completo** | Executa todo o pipeline de uma vez |
+
+A aba **Visão Executiva** é voltada para stakeholders e gestores, apresentando:
+- KPIs: total de boletos, CNPJs analisados, taxa de inadimplência, AUC-ROC
+- Impacto financeiro: volume analisado, perda estimada, economia potencial com o modelo
+- Gráficos: composição do portfólio, impacto financeiro, comparação de modelos
+- Resumo executivo textual
 
 ---
 
@@ -141,6 +179,13 @@ python versao_console.py
 
 Roda o pipeline inteiro no terminal e salva graficos em `output/`.
 
+### Gerar diagramas de arquitetura
+```bash
+python gerar_diagrama_arquitetura.py
+```
+
+Gera 5 diagramas visuais na pasta `output/`.
+
 ### Endpoints da API (local)
 | Rota | O que faz |
 |------|----------|
@@ -159,24 +204,57 @@ Roda o pipeline inteiro no terminal e salva graficos em `output/`.
 
 ```
 guardiao_nuclea/
-├── main.py                 # ponto de entrada (sobe API + Streamlit local / Cloud)
-├── versao_console.py       # pipeline completo no terminal
-├── pipeline.py             # funcoes do pipeline (reusavel)
-├── api.py                  # API FastAPI
-├── app_streamlit.py        # dashboard Streamlit
-├── database.py             # modulo SQLite (carga e persistencia)
-├── modelo_treinado.pkl     # modelo salvo (carrega automatico)
-├── requirements.txt        # dependencias Python
+├── main.py                         # ponto de entrada (sobe API + Streamlit local / Cloud)
+├── versao_console.py               # pipeline completo no terminal
+├── pipeline.py                     # funcoes do pipeline (reusavel)
+├── api.py                          # API FastAPI
+├── app_streamlit.py                # dashboard Streamlit (6 abas incl. Visão Executiva)
+├── database.py                     # modulo SQLite (carga e persistencia)
+├── gerar_diagrama_arquitetura.py   # gera 5 diagramas de arquitetura em PNG
+├── modelo_treinado.pkl             # modelo salvo (carrega automatico)
+├── requirements.txt                # dependencias Python
 ├── README.md
 ├── data/
 │   ├── base_boletos_fiap.csv
 │   ├── base_auxiliar_fiap.csv
-│   └── guardiao_nuclea.db  # banco SQLite (gerado automaticamente)
-└── output/                 # graficos gerados
+│   └── guardiao_nuclea.db          # banco SQLite (gerado automaticamente)
+└── output/                         # graficos e diagramas gerados
     ├── 01_tipos_baixa.png
-    ├── ...
-    └── 08_dist_score_risco.png
+    ├── 02_dist_valor_nominal.png
+    ├── 03_top_ufs.png
+    ├── 04_correlacao.png
+    ├── 05_curva_roc.png
+    ├── 06_matriz_confusao.png
+    ├── 07_feature_importance.png
+    ├── 08_dist_score_risco.png
+    ├── arquitetura_tecnica.png
+    ├── fluxograma_jornada_dado.png
+    ├── fluxograma_jornada_usuario.png
+    ├── arquitetura_executiva_mvp.png
+    ├── arquitetura_final_mvp.png
+    └── arquitetura_guardiao_nuclea.png
 ```
+
+---
+
+## Gestão do Projeto
+
+O projeto utiliza **GitHub Projects** com board Kanban para gestão ágil das sprints, com issues organizadas por milestones, labels e datas.
+
+📋 **Board:** [GitHub Projects — Guardião Nuclea](https://github.com/carlospenta/guardiao_nuclea/projects)
+
+### Labels
+| Label | Descrição |
+|-------|-----------|
+| `Docs` | Documentação |
+| `ML` | Machine Learning |
+| `Backend` | Backend/API |
+| `Frontend` | Frontend/Dashboard |
+| `Infra` | Infraestrutura/Deploy |
+| `Arquitetura` | Arquitetura da solução |
+| `Gestão` | Gestão de projeto |
+| `QA` | Testes e qualidade |
+| `Data` | Dados |
 
 ---
 
@@ -194,7 +272,7 @@ guardiao_nuclea/
 
 - [x] Sprint 1 — Ideação e contextualização
 - [x] Sprint 2 — Arquitetura e protótipos
-- [x] Sprint 3 — MVP com EDA, modelo preditivo, API FastAPI, dashboard Streamlit, SQLite e deploy Cloud *(atual)*
+- [x] Sprint 3 — MVP com EDA, modelo preditivo, API FastAPI, dashboard Streamlit (incl. Visão Executiva), SQLite, diagramas de arquitetura e deploy Cloud *(atual)*
 - [ ] Sprint 4 — Solução final e video pitch
 
 ---
