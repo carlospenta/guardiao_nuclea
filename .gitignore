@@ -6,4 +6,3 @@ __pycache__/
 *.db-wal
 *.db-shm
 /gerar_diagrama_arquitetura.py
-/output/
